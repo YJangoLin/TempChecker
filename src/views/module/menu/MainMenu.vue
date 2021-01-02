@@ -15,8 +15,8 @@
                         <el-dropdown>
                             <i class="el-icon-setting" style="margin-right: 15px"></i>
                             <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item>个人中心</el-dropdown-item>
-                                <el-dropdown-item>退出登录</el-dropdown-item>
+                                <el-dropdown-item @click="userInfo">个人中心</el-dropdown-item>
+                                <el-dropdown-item @click="closeLogin">退出登录</el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
                     </el-col>
@@ -80,9 +80,27 @@
     export default {
         data() {
             return {
-                menuList: this.$router.options.routes.slice(2),
+                menuList: [],
                 dataForm: {},
                 account: this.$route.params.account,
+                authority: ''
+            }
+        },
+        methods: {
+            userInfo() {
+                this.$router.push({
+                    name: '个人信息',
+                })
+            },
+            closeLogin(){
+                const _this = this;
+                axios.get("http://127.0.0.1:8181/user/leave").then(function (resp) {
+                    alert(resp.data)
+                    _this.$router.push({
+                        name: 'login',
+                    })
+                })
+
             }
         },
         created: function () {
@@ -91,11 +109,23 @@
                 _this.dataForm = resp.data;
                 console.log(resp.data);
                 console.log(_this.dataForm);
+                axios.get("http://127.0.0.1:8181/user/getAuthor").then(function (resp) {
+                    _this.authority = resp.data;
+                    console.log(_this.authority);
+                    axios.get("http://127.0.0.1:8181/menu/info/"+ _this.authority).then(function (resp) {
+                        _this.menuList = resp.data;
+                        console.log(resp.data)
+                        console.log(_this.menuList);
 
+                    }).catch(function (error) {
+                        alert("404服务器错误")
+                    });
+                }).catch(function (error) {
+                    alert("404服务器错误")
+                });
             }).catch(function (error) {
                 alert("404服务器错误")
             });
-            // console.log(this.menuList)
         },
         name: "MainMenu"
     }

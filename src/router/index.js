@@ -9,6 +9,7 @@ import userperson from "../views/module/usermanage/userperson";
 import viewchart from "../views/module/check/viewchart";
 import currentcheck from "../views/module/check/currentcheck";
 import analysis from "../views/module/dataerror/analysis";
+import tip from "../views/module/check/tip";
 
 Vue.use(VueRouter)
 
@@ -54,13 +55,9 @@ const routes = [
         name: '可视化分析',
         component: viewchart
       },{
-        path: '/page2_3',
-        name: '异常检测',
-        component: menu
-      },{
-        path: '/page2_4',
+        path: '/tip',
         name: '温馨提示',
-        component: menu
+        component:tip
       }
     ]
   }, {

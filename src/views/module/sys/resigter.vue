@@ -33,7 +33,7 @@
                 <el-row>
                     <el-col :span="8" :offset="8">
                         <el-form-item prop="password2">
-                            <el-input v-model="dataForm.password2" placeholder="密码" clearable></el-input>
+                            <el-input v-model="dataForm.password2" placeholder="密码" type="password" clearable></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -66,7 +66,11 @@
                 dataForm: {
                     account: '',
                     password: '',
-                    passowrd2: ''
+                    password2: ''
+                },
+                submitData:{
+                    account: '',
+                    password: ''
                 },
                 rules: {
                     account: [
@@ -86,10 +90,14 @@
         methods: {
             reg(dataSend) {
                 const _this = this;
+                console.log(_this.dataForm.password)
+                console.log(_this.dataForm.password2)
                 this.$refs[dataSend].validate((valid) => {
                         if (valid) {
-                            if (_this.dataForm.password == _this.dataForm.passowrd2){
-                                axios.post("http://127.0.0.1:8181/user/save",_this.dataForm).then(function (resp) {
+                            if (_this.dataForm.password == _this.dataForm.password2){
+                                _this.submitData.account = _this.dataForm.account
+                                _this.submitData.password = _this.dataForm.password
+                                axios.post("http://127.0.0.1:8181/user/save",_this.submitData).then(function (resp) {
                                     if (resp.data=="操作成功"){
                                         alert("注册成功！")
                                         _this.$router.push({

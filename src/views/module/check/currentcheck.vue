@@ -6,6 +6,11 @@
                 </div>
             </el-col>
         </el-row>
+        <el-col :span="24">
+            <div class="div-bar" style="text-align: center">
+                <a>数据展示</a>
+            </div>
+        </el-col>
         <el-table
                 :data="tableData"
                 height="300"
@@ -13,9 +18,9 @@
                 :row-class-name="rowClassName"
         >
             <el-table-column prop="id" label="序号" width="180"></el-table-column>
-            <el-table-column prop="account" label="温度" header-align="center" align="center"></el-table-column>
-            <el-table-column prop="account" label="湿度" header-align="center" align="center"></el-table-column>
-            <el-table-column prop="loginTime" label="获取时间" header-align="center" align="center"></el-table-column>
+            <el-table-column prop="tp" label="温度" header-align="center" align="center"></el-table-column>
+            <el-table-column prop="wp" label="湿度" header-align="center" align="center"></el-table-column>
+            <el-table-column prop="createDate" label="获取时间" header-align="center" align="center"></el-table-column>
         </el-table>
     </div>
 
@@ -26,7 +31,10 @@
     export default {
         data() {
             return{
-                tableData: []
+                tableData: [],
+                tData: [],
+                wData: [],
+                cData: []
             }
         },
         methods: {
@@ -34,7 +42,7 @@
                 //把每一行的索引放进row.id
                 row.id = rowIndex+1;
             },
-            creatEchartsBar(id,text){
+            creatEchartsBar(id,text,titleData,data1,data2){
                 var myChart = this.$echarts.init(document.getElementById(id));
                 var option = {
                     backgroundColor: '#fff',
@@ -93,13 +101,13 @@
                             },
                         },
                         axisLabel: {
-                            color: '#fff'
+                            color: '#000'
                         },
                         splitLine: {
                             show: false
                         },
                         boundaryGap: false,
-                        data: ['A', 'B', 'C', 'D', 'E', 'F'],
+                        data:  titleData,
 
                     }],
 
@@ -180,7 +188,7 @@
                                 shadowBlur: 20
                             }
                         },
-                        data: [502.84, 205.97, 332.79, 281.55, 398.35, 214.02, ]
+                        data: data1
                     },
                         {
                             name: '注册总量',
@@ -234,7 +242,7 @@
                                     shadowBlur: 20
                                 }
                             },
-                            data: [281.55, 398.35, 214.02, 179.55, 289.57, 356.14, ],
+                            data: data2,
                         },
                     ]
                 };
@@ -243,7 +251,22 @@
             }
         },
         mounted() {
-            this.creatEchartsBar("chart1","温湿度实时信息");
+            const _this = this;
+            let tdata = [];
+            let wdata = [];
+            let cdata = [];
+            axios.get("http://127.0.0.1:8181/tw/finAll").then(function (resq) {
+                console.log(resq.data)
+                 _this.tableData  = resq.data.data;
+                 _this.tData = resq.data.tData
+                 _this.wData = resq.data.wData;
+                 _this.cData = resq.data.cData;
+                 cdata = resq.data.cData;
+                 tdata = resq.data.tData.map(Number);
+                 wdata = resq.data.wData.map(Number);
+                _this.creatEchartsBar("chart1","温湿度实时信息",cdata,tdata, wdata);
+            })
+            console.log(tdata)
         },
         name: "currentcheck"
     }
@@ -253,5 +276,16 @@
     /*#cur{*/
     /*    background-color: #080b30;*/
     /*}*/
-
+    .div-bar{
+        background: #0bb2d4;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        height: 30px
+    }
+    .div-bar a{
+        color: white;
+        font-size: 16px;
+        margin-left: 10px;
+        line-height: 30px
+    }
 </style>

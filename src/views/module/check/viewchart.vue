@@ -11,16 +11,24 @@
 <script>
     import * as echarts from 'echarts';
     export default {
+        data(){
+            return{
+                cData: [],
+                tData: [],
+                wData: [],
+                curData: []
+            }
+        },
         name: "viewchart",
         methods:{
-            createEcharts(id) {
+            createEcharts(id, cdata, tdata, wdata ) {
                 var mycharts = this.$echarts.init(document.getElementById(id));
-                var xData = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+                var xData = cdata
                 var lineData = [100, 100, 100, 100, 100, 100, 100]
-                var lastYearData = [3, 20, 62, 34, 55, 65, 33];
-                var thisYearData = [11, 38, 23, 39, 66, 66, 79];
+                var lastYearData = tdata;
+                var thisYearData = wdata;
                 var timeLineData = [1];
-                let legend=['2017', '2018'];
+                let legend=['温度', '湿度'];
                 var background = "#0e2147"; //背景
                 let textColor = "#fff";
                 let lineColor="rgba(255,255,255,0.2)";
@@ -286,11 +294,11 @@
                 });
                 mycharts.setOption(option);
             },
-            createCurTp(id, text) {
+            createCurTp(id, text,data1) {
                 var mycharts1 = this.$echarts.init(document.getElementById(id));
                 var value = 0.2;
                 var data = [value, value, value, ];
-                var  getvalue=[88];
+                var  getvalue=[ data1 ];
 
                 var option = {
                     title: {
@@ -299,7 +307,7 @@
                             color: '#28BCFE',
                             fontSize: 20
                         },
-                        subtext: '综合得分',
+                        subtext: text,
                         subtextStyle: {
                             color: '#666666',
                             fontSize: 12
@@ -310,7 +318,7 @@
                     },
                     tooltip: {
                         formatter: function (params) {
-                            return '<span style="color: #fff;">综合得分：'+ getvalue + '℃</span>';
+                            return '<span style="color: #fff;">湿度： '+ getvalue + '℃</span>';
                         }
                     },
                     angleAxis: {
@@ -365,11 +373,11 @@
                 };
                 mycharts1.setOption(option);
             },
-            createCurTp1(id, text) {
+            createCurTp1(id, text,data1) {
         var mycharts1 = this.$echarts.init(document.getElementById(id));
         var value = 0.2;
         var data = [value, value, value, ];
-        var  getvalue=[88];
+        var  getvalue=[ data1 ];
 
         var option = {
             title: {
@@ -378,7 +386,7 @@
                     color: '#c93756',
                     fontSize: 20
                 },
-                subtext: '综合得分',
+                subtext: text,
                 subtextStyle: {
                     color: '#666666',
                     fontSize: 12
@@ -389,11 +397,11 @@
             },
             tooltip: {
                 formatter: function (params) {
-                    return '<span style="color: #fff;">温度：'+ getvalue + '℃</span>';
+                    return '<span style="color: #fff;">温度：'+ getvalue + '%</span>';
                 }
             },
             angleAxis: {
-                max: 100,
+                max: 50,
                 clockwise: true, // 逆时针
                 // 隐藏刻度线
                 show: false
@@ -447,9 +455,29 @@
         },
 
         mounted: function () {
-            this.createEcharts('chart1');
-            this.createCurTp1("chart2",'当前温度');
-            this.createCurTp("chart3",'当前湿度')
+            const _this = this;
+            let tdata = [];
+            let wdata = [];
+            let cdata = [];
+            axios.get("http://127.0.0.1:8181/tw/finAll").then(function (resq) {
+                console.log(resq.data)
+                _this.tableData  = resq.data.data;
+                _this.tData = resq.data.tData
+                _this.wData = resq.data.wData;
+                _this.cData = resq.data.cData;
+                cdata = resq.data.cData.slice(0,7);
+                tdata = resq.data.tData.map(Number).slice(0,7);
+                wdata = resq.data.wData.map(Number).slice(0,7);
+                for(var i = 0; i< cdata.length;i++){
+                    cdata[i] = cdata[i].substr(0,10);
+                }
+                _this.createEcharts('chart1',cdata,tdata, wdata);
+            });
+            axios.get("http://127.0.0.1:8181/tw/findLast").then(function (resq) {
+                _this.curData = [resq.data.tp ,resq.data.wp]
+                _this.createCurTp1("chart2",'当前温度',resq.data.tp);
+                _this.createCurTp("chart3",'当前湿度',100*resq.data.wp)
+            })
         }
     }
 </script>
